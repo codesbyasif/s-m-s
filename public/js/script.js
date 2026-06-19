@@ -8,10 +8,7 @@
 // DUMMY DATA
 // ============================================
 
-const USERS = {
-  student: { name: 'Sara Ahmed', email: 'sara.ahmed@edu.com', initials: 'SA', role: 'Student', branch: 'CSE', semester: 5 },
-  teacher: { name: 'Prof. Rajan K.', email: 'rajan.k@edu.com', initials: 'RK', role: 'Teacher', branch: 'CSE', semester: null }
-};
+
 
 // Dummy courses data
 // API hook: Replace with → GET /api/courses?studentId={id}
@@ -84,7 +81,7 @@ const TEACHER_TESTS_DATA = [
 // APP STATE
 // ============================================
 
-let currentRole = 'student';
+
 let currentSection = 'dashboard';
 let testState = {
   active: false,
@@ -116,64 +113,207 @@ document.addEventListener('DOMContentLoaded', () => {
 // API hook: POST /api/auth/login { email, password, role }
 // Response: { token, user: { id, name, role, ... } }
 // On success: store JWT → localStorage.setItem('token', response.token)
-function handleLogin() {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value.trim();
+async function handleLogin() {
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
   if (!email || !password) {
-    showToast('Please fill in all fields');
+    showToast("Please fill in all fields");
     return;
   }
 
-  // Simulate login animation
-  const btn = document.querySelector('.btn-login');
-  btn.innerHTML = '<span>Signing in…</span>';
-  btn.disabled = true;
+  const btn = document.querySelector(".btn-login");
 
-  setTimeout(() => {
-    btn.innerHTML = '<span>Sign In</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  btn.disabled = true;
+  btn.innerHTML = "<span>Signing in...</span>";
+
+  try {
+
+    const response = await fetch("/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
+
+    const data = await response.json();
+
     btn.disabled = false;
 
-    applyRole(currentRole);
-    document.getElementById('loginPage').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    showToast(`Welcome back, ${USERS[currentRole].name}!`);
-  }, 1000);
-}
+    btn.innerHTML = `
+      <span>Sign In</span>
+      <svg width="18" height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    `;
 
-function selectRole(role) {
-  currentRole = role;
-  document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('active', b.dataset.role === role));
-  // Update email hint
-  document.getElementById('email').value = role === 'student' ? 'student@edu.com' : 'teacher@edu.com';
-}
+    if (!response.ok) {
+      showToast(data.message);
+      return;
+    }
 
-function applyRole(role) {
-  const user = USERS[role];
+    applyRole(data.user);
 
-  // Update nav/sidebar
-  document.getElementById('navAvatar').textContent = user.initials;
-  document.getElementById('navName').textContent = user.name;
-  document.getElementById('sidebarAvatar').textContent = user.initials;
-  document.getElementById('sidebarName').textContent = user.name;
-  document.getElementById('sidebarRole').textContent = user.role;
-  document.getElementById('profileAvatar').textContent = user.initials;
-  document.getElementById('profileName').textContent = user.name;
-  document.getElementById('profileEmail').textContent = user.email;
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
 
-  // Show/hide nav sections
-  document.getElementById('studentNav').classList.toggle('hidden', role !== 'student');
-  document.getElementById('teacherNav').classList.toggle('hidden', role !== 'teacher');
+    showToast("Login Successful");
 
-  // Navigate to correct dashboard
-  const defaultSection = role === 'student' ? 'dashboard' : 'teacherDashboard';
-  if (role === 'student') {
-    document.getElementById('studentGreetName').textContent = user.name.split(' ')[0];
-  } else {
-    document.getElementById('teacherGreetName').textContent = user.name;
+  } catch (error) {
+    btn.disabled = false;
+
+btn.innerHTML = `
+<span>Sign In</span>
+<svg width="18" height="18" viewBox="0 0 24 24"
+fill="none" stroke="currentColor" stroke-width="2">
+<path d="M5 12h14M12 5l7 7-7 7"/>
+</svg>
+`;
+
+    console.log(error);
+    showToast("Server Error");
+
   }
+}
 
-  navigateTo(defaultSection);
+async function handleRegister() {
+
+    const name =
+        document.getElementById("registerName").value;
+
+    const email =
+        document.getElementById("registerEmail").value;
+
+    const password =
+        document.getElementById("registerPassword").value;
+
+    const role =
+        document.getElementById("registerRole").value;
+
+
+    try {
+
+        const response =
+            await fetch("/auth/register", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                    role
+                })
+
+            });
+
+
+        const data = await response.json();
+
+        if (response.ok) {
+
+            showToast(
+                "Registration successful"
+            );
+
+            showLogin();
+
+        }
+        else {
+
+            showToast(data.message);
+
+        }
+
+    }
+    catch (error) {
+
+        showToast("Server Error");
+
+    }
+
+}
+
+
+function showLogin() {
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+
+    if (loginForm) loginForm.classList.remove("hidden");
+    if (registerForm) registerForm.classList.add("hidden");
+
+    document.querySelectorAll(".role-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.form === "login");
+    });
+}
+
+function showRegister() {
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+
+    if (registerForm) registerForm.classList.remove("hidden");
+    if (loginForm) loginForm.classList.add("hidden");
+
+    document.querySelectorAll(".role-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.form === "register");
+    });
+}
+
+function applyRole(user) {
+
+  const initials = user.name
+    .split(" ")
+    .map(word => word[0])
+    .join("")
+    .toUpperCase();
+
+  document.getElementById("navAvatar").textContent = initials;
+  document.getElementById("navName").textContent = user.name;
+
+  document.getElementById("sidebarAvatar").textContent = initials;
+  document.getElementById("sidebarName").textContent = user.name;
+  document.getElementById("sidebarRole").textContent = user.role;
+
+  document.getElementById("profileAvatar").textContent = initials;
+  document.getElementById("profileName").textContent = user.name;
+  document.getElementById("profileEmail").textContent = user.email;
+
+  document.getElementById("studentNav")
+    .classList.toggle("hidden", user.role !== "student");
+
+  document.getElementById("teacherNav")
+    .classList.toggle("hidden", user.role !== "teacher");
+
+  if (user.role === "student") {
+
+    document.getElementById("studentGreetName").textContent =
+      user.name.split(" ")[0];
+
+    navigateTo("dashboard");
+
+  }
+  else {
+
+    document.getElementById("teacherGreetName").textContent =
+      user.name;
+
+    navigateTo("teacherDashboard");
+
+  }
 }
 
 function handleLogout() {
