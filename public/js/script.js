@@ -13,14 +13,79 @@
 // Dummy courses data
 // API hook: Replace with → GET /api/courses?studentId={id}
 const COURSES = [
-  { id: 1, name: 'Data Structures & Algorithms', teacher: 'Prof. Rajan K.', branch: 'CSE', semester: 5, progress: 72, emoji: '🌳', color: '#dbeafe', desc: 'Trees, graphs, heaps and advanced algorithmic techniques for efficient data management.' },
-  { id: 2, name: 'Mathematics III', teacher: 'Prof. Meera S.', branch: 'CSE', semester: 5, progress: 88, emoji: '📐', color: '#d1fae5', desc: 'Integral transforms, complex analysis, and numerical methods for engineering applications.' },
-  { id: 3, name: 'Physics Lab', teacher: 'Dr. Anand V.', branch: 'ECE', semester: 5, progress: 55, emoji: '⚡', color: '#fef3c7', desc: 'Hands-on experiments covering optics, electromagnetics, and semiconductor physics.' },
-  { id: 4, name: 'Database Management Systems', teacher: 'Prof. Latha R.', branch: 'CSE', semester: 5, progress: 40, emoji: '🗄️', color: '#ede9fe', desc: 'Relational models, SQL, normalization, transactions, and NoSQL databases.' },
-  { id: 5, name: 'Computer Networks', teacher: 'Dr. Kiran M.', branch: 'CSE', semester: 5, progress: 60, emoji: '🌐', color: '#fce7f3', desc: 'OSI model, TCP/IP stack, routing protocols, and network security fundamentals.' },
-  { id: 6, name: 'Operating Systems', teacher: 'Prof. Suresh B.', branch: 'CSE', semester: 5, progress: 78, emoji: '💻', color: '#e0f2fe', desc: 'Process management, memory management, scheduling algorithms, and file systems.' }
+  {
+    id: 1,
+    name: 'Data Structures & Algorithms',
+    teacher: 'Prof. Rajan K.',
+    branch: 'CSE',
+    semester: 5,
+    progress: 72,
+    emoji: '🌳',
+    color: '#dbeafe',
+    desc: 'Trees, graphs, heaps and advanced algorithmic techniques for efficient data management.',
+    resourceLink: 'https://www.youtube.com/watch?v=0bHoB32fuj0&list=PLgUwDviBIf0oF6QL8m22w1hIDC1vJ_BHz'
+  },
+  {
+    id: 2,
+    name: 'Mathematics III',
+    teacher: 'Prof. Meera S.',
+    branch: 'CSE',
+    semester: 5,
+    progress: 88,
+    emoji: '📐',
+    color: '#d1fae5',
+    desc: 'Integral transforms, complex analysis, and numerical methods for engineering applications.',
+    resourceLink: 'https://www.youtube.com/watch?v=NAJuuEKwOIQ&list=PLT3bOBUU3L9gTsmfMhyCUAiijZ8F2Ii-b'
+  },
+  {
+    id: 3,
+    name: 'Physics Lab',
+    teacher: 'Dr. Anand V.',
+    branch: 'ECE',
+    semester: 5,
+    progress: 55,
+    emoji: '⚡',
+    color: '#fef3c7',
+    desc: 'Hands-on experiments covering optics, electromagnetics, and semiconductor physics.',
+    resourceLink: 'https://www.youtube.com/watch?v=rtbIOI4I5iI&t=2s'
+  },
+  {
+    id: 4,
+    name: 'Database Management Systems',
+    teacher: 'Prof. Latha R.',
+    branch: 'CSE',
+    semester: 5,
+    progress: 40,
+    emoji: '🗄️',
+    color: '#ede9fe',
+    desc: 'Relational models, SQL, normalization, transactions, and NoSQL databases.',
+    resourceLink: 'https://www.youtube.com/watch?v=3EJlovevfcA'
+  },
+  {
+    id: 5,
+    name: 'Computer Networks',
+    teacher: 'Dr. Kiran M.',
+    branch: 'CSE',
+    semester: 5,
+    progress: 60,
+    emoji: '🌐',
+    color: '#fce7f3',
+    desc: 'OSI model, TCP/IP stack, routing protocols, and network security fundamentals.',
+    resourceLink: 'https://www.youtube.com/watch?v=VwN91x5i25g&list=PLBlnK6fEyqRgMCUAG0XRw78UA8qnv6jEx'
+  },
+  {
+    id: 6,
+    name: 'Operating Systems',
+    teacher: 'Prof. Suresh B.',
+    branch: 'CSE',
+    semester: 5,
+    progress: 78,
+    emoji: '💻',
+    color: '#e0f2fe',
+    desc: 'Process management, memory management, scheduling algorithms, and file systems.',
+    resourceLink: 'https://www.youtube.com/watch?v=xw_OuOhjauw'
+  }
 ];
-
 // Dummy tests data (MCQ)
 // API hook: Replace with → GET /api/tests?studentId={id}&status=upcoming
 const TESTS_LIST = [
@@ -184,6 +249,12 @@ fill="none" stroke="currentColor" stroke-width="2">
 
   }
 }
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    handleLogin();
+  }
+});
+
 
 async function handleRegister() {
 
@@ -455,20 +526,30 @@ function handleSearch(val) {
 function renderCourses(courses) {
   const grid = document.getElementById('coursesGrid');
   if (!grid) return;
+
   grid.innerHTML = courses.map(c => `
     <div class="course-card" data-branch="${c.branch}" data-sem="${c.semester}">
       <div class="course-img" style="background:${c.color}">${c.emoji}</div>
+
       <div class="course-body">
         <h4>${c.name}</h4>
         <p class="course-teacher">👤 ${c.teacher}</p>
         <p class="course-desc">${c.desc}</p>
       </div>
+
       <div class="course-footer">
         <div class="course-progress-wrap">
-          <div class="progress-bar"><div class="progress-fill" style="width:${c.progress}%"></div></div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${c.progress}%"></div>
+          </div>
           <span>${c.progress}%</span>
         </div>
-        <button class="view-btn" onclick="showToast('Resources for ${c.name} loading soon!')">View Resources</button>
+
+        <a href="${c.resourceLink}"
+           target="_blank"
+           class="view-btn">
+           View Resources
+        </a>
       </div>
     </div>
   `).join('');
