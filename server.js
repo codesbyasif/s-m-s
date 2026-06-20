@@ -14,14 +14,9 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "views", "index.html"));
 });
 
-const isMain = require.main === module;
-if (isMain) {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
-
-module.exports = app;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
